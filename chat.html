@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+<body>
+    <h1>Welcome to the chat, <span id="name"></span>!</h1>
+    <div id="messages"></div>
+    <form id="messageForm">
+        <label for="message">Message:</label>
+        <input type="text" name="message" id="message">
+        <input type="submit" value="Send">
+    </form>
+    <script>
+        var ws = new WebSocket("ws://" + window.location.host + "/ws");
+        ws.onopen = function() {
+            console.log("WebSocket connection established.");
+        };
+        ws.onmessage = function(event) {
+            var messagesDiv = document.getElementById("messages");
+            var message = event.data;
+            messagesDiv.innerHTML += message + "<br>";
+        };
+        var messageForm = document.getElementById("messageForm");
+        messageForm.onsubmit = function(event) {
+            event.preventDefault();
+            var messageInput = document.getElementById("message");
+            var message = messageInput.value;
+            ws.send(message);
+            messageInput.value = "";
+        };
+        var nameCookie = document.cookie.match('(^|;)\\s*' + 'name' + '\\s*=\\s*([^;]+)');
+        if (nameCookie) {
+            var nameValue = nameCookie.pop();
+            document.getElementById("name").textContent = nameValue;
+        }
+    </script>
+</body>
+</html>
